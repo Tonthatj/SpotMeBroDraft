@@ -47,18 +47,15 @@ public class Main_Page extends AppCompatActivity
             {
                 MyApplication.Global_Gender = dataSnapshot.child("Gender").getValue().toString();
                 MyApplication.Global_Style = dataSnapshot.child("Preferences").child("Style").getValue().toString();
-                MyApplication.Global_Preffered_Gender = dataSnapshot.child("Preferences").child("Preffered Gender").getValue().toString();
+                MyApplication.Global_Preffered_Gender = dataSnapshot.child("Preferences").child("Preferred_Gender").getValue().toString();
             }
 
             @Override
-            public void onCancelled(DatabaseError databaseError) {
+            public void onCancelled(DatabaseError databaseError)
+            {
 
             }
         });
-
-
-
-
     }
 
     public void signOut(View view)
@@ -66,24 +63,16 @@ public class Main_Page extends AppCompatActivity
         mAuth = FirebaseAuth.getInstance();
         mAuth.signOut();
         startActivity(new Intent(Main_Page.this, Login.class));
-
     }
 
     public void GotoMatches(View view)
     {
-
-
-
         startActivity(new Intent(Main_Page.this, Matches_Page.class));
-
-
-
-
     }
 
     public void GotoEditor(View view)
     {
-        //startActivity(new Intent(Main_Page.this, Matches_Page.class));
+        startActivity(new Intent(Main_Page.this, PreferenceEditor.class));
 
     }
 
