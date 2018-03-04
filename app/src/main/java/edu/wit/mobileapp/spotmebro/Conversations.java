@@ -1,20 +1,15 @@
 package edu.wit.mobileapp.spotmebro;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -22,13 +17,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Map;
 
-import static android.app.PendingIntent.getActivity;
+public class Conversations extends AppCompatActivity {
 
-public class Matches_Page extends AppCompatActivity
-{
     //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     // Database stuff:
     private FirebaseDatabase database;
@@ -42,7 +33,7 @@ public class Matches_Page extends AppCompatActivity
 
     private ListView listview;
     private ArrayList<String> entries;
-    private ArrayList<String> AllTimes;
+    private ArrayList<String> AllConversations;
     private ArrayList<String> AllNames;
 
 
@@ -55,9 +46,10 @@ public class Matches_Page extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_matches__page);
+        setContentView(R.layout.activity_conversations);
 
-        AllTimes = new ArrayList<>();
+
+        AllConversations = new ArrayList<String>();
 
 
         mAuth = FirebaseAuth.getInstance();
@@ -67,8 +59,9 @@ public class Matches_Page extends AppCompatActivity
         String UID = mAuth.getCurrentUser().getUid();
         listview = findViewById(R.id.newListView);
 
-        myRefAvailability = FirebaseDatabase.getInstance().getReference("Users").child(UID).child("Availability");
-        myRefAvailability.addValueEventListener(new ValueEventListener() {
+        myRefAvailability = FirebaseDatabase.getInstance().getReference("Users");
+        myRef = myRefAvailability.child(UID).child("Conversations");
+        myRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot)
             {
@@ -80,12 +73,14 @@ public class Matches_Page extends AppCompatActivity
                 {
                     temp = ", ";
                 }
-                String [] available = temp.split(",");
-                for (int i = 1; i < available.length; i++)
+
+
+                String [] convos = temp.split(",");
+                for (int i = 1; i < convos.length; i++)
                 {
-                    AllTimes.add(available[i]);
+                    AllConversations.add(convos[i]);
                 }
-                ArrayAdapter<String> adapter = new ArrayAdapter(Matches_Page.this, android.R.layout.simple_list_item_1, AllTimes);
+                ArrayAdapter<String> adapter = new ArrayAdapter(Conversations.this, android.R.layout.simple_list_item_1, AllConversations);
 
                 listview.setAdapter(adapter);
 
@@ -95,11 +90,10 @@ public class Matches_Page extends AppCompatActivity
                     {
                         if(temp != ", ")
                         {
-                            String timeset = (listview.getItemAtPosition(position)).toString();
-                            Intent gotoTimeMatches = new Intent(Matches_Page.this, HourMatches.class);
-                            gotoTimeMatches.putExtra("timeset",timeset);
-                            startActivity(gotoTimeMatches);
-
+                            String conversation = (listview.getItemAtPosition(position)).toString();
+                            Intent gotoMessages = new Intent(Conversations.this, Messages.class);
+                            gotoMessages.putExtra("conversation", conversation);
+                            startActivity(gotoMessages);
                         }
 
                     }
@@ -116,10 +110,8 @@ public class Matches_Page extends AppCompatActivity
 
 
 
-
-
-
     }
+
 
 
 
@@ -129,85 +121,13 @@ public class Matches_Page extends AppCompatActivity
     {
 
         mAuth.signOut();
-        startActivity(new Intent(Matches_Page.this, Login.class));
+        startActivity(new Intent(Conversations.this, Login.class));
 
     }
 
     public void GoToMain(View view)
     {
-        startActivity(new Intent(Matches_Page.this, Main_Page2.class));
+        startActivity(new Intent(Conversations.this, Main_Page2.class));
 
     }
-
-    public void GotoProfile(View view)
-    {
-
-
-    }
-
-
-
-
-
-
-
-
-
-
-
-    static public class User
-    {
-        public String getSecurity() {
-            return Security;
-        }
-
-        public void setSecurity(String Security) {
-            this.Security = Security;
-        }
-
-        public String getAnswer() {
-            return Answer;
-        }
-
-        public void setAnswer(String Answer) {
-            this.Answer = Answer;
-        }
-
-        public String getStyle() {
-            return Style;
-        }
-
-        public void setStyle(String Style) {
-            this.Style = Style;
-        }
-
-        public String getEmail() {
-            return Email;
-        }
-
-        public void setEmail(String email) {
-            Email = email;
-        }
-
-        private String Email;
-        private String Security;
-        private String Answer;
-        private String Style;
-
-        public User() {
-        }
-        public User(String Security, String Answer, String Style, String Email)
-        {
-            this.Answer = Answer;
-            this.Security = Security;
-            this.Style = Style;
-            this.Email = Email;
-        }
-
-
-    }
-
-
-
-
 }

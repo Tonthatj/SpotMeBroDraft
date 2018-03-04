@@ -1,5 +1,6 @@
 package edu.wit.mobileapp.spotmebro;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -29,8 +30,8 @@ public class PreferenceEditor extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_preference_editor);
-        mStyle_input = (Spinner) findViewById(R.id.Style_Input);
-        mPref_gender_input = (Spinner) findViewById(R.id.Preferred_Gender);
+        mStyle_input = findViewById(R.id.Style_Input);
+        mPref_gender_input = findViewById(R.id.Preferred_Gender);
 
         mAuth = FirebaseAuth.getInstance();
         availabilities = " ";
@@ -43,7 +44,15 @@ public class PreferenceEditor extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot)
             {
-                availabilities = dataSnapshot.child("Availability").getValue().toString();
+                try
+                {
+                    availabilities = dataSnapshot.child("Availability").getValue().toString();
+                }
+                catch (NullPointerException i)
+                {
+                    availabilities = ", ";
+                }
+
                 String style = dataSnapshot.child("Preferences").child("Style").getValue().toString();
                 String pref_gend = dataSnapshot.child("Preferences").child("Preferred_Gender").getValue().toString();
                 mStyle_input.setPrompt(style);
@@ -60,18 +69,23 @@ public class PreferenceEditor extends AppCompatActivity {
 
     public void submit_changes(View view)
     {
-        mStyle_input = (Spinner) findViewById(R.id.Style_Input);
-        mPref_gender_input = (Spinner) findViewById(R.id.Preferred_Gender);
+        mStyle_input = findViewById(R.id.Style_Input);
+        mPref_gender_input = findViewById(R.id.Preferred_Gender);
         mAuth = FirebaseAuth.getInstance();
         String user = mAuth.getCurrentUser().getUid().toString();
 
-        String [] available = availabilities.split(",");
-        for (int i = 1; i < available.length; i++)
+
+        if(availabilities == ", ")
         {
 
+        }
+        else
+        {
+        String [] available = availabilities.split(",");
+        for (int i = 1; i < available.length; i++) {
 
 
-            String [] parts = available[i].split(" ");
+            String[] parts = available[i].split(" ");
             String Day = parts[0];
             String Time = parts[1];
             String AMPM = parts[2];
@@ -80,16 +94,12 @@ public class PreferenceEditor extends AppCompatActivity {
             String time = Time;
 
             if (AMPM == "AM") {
-                if (time == "12")
-                {
+                if (time == "12") {
                     Time = "0";
                 }
 
-            }
-            else if (AMPM == "PM")
-            {
-                switch (time)
-                {
+            } else if (AMPM == "PM") {
+                switch (time) {
                     case "1":
                         finaltime = "13";
                         break;
@@ -135,7 +145,7 @@ public class PreferenceEditor extends AppCompatActivity {
             myRef = FirebaseDatabase.getInstance().getReference("").child(Day).child(Time).child(user);
             // set listener to grab users preferences.
             myRef.child("Style").setValue(mStyle_input.getSelectedItem().toString());
-
+        }
 
         }
 
@@ -155,5 +165,10 @@ public class PreferenceEditor extends AppCompatActivity {
         });
 
 
+    }
+
+    public void gotoBacktoMain(View view)
+    {
+        startActivity(new Intent(PreferenceEditor.this, Main_Page2.class));
     }
 }

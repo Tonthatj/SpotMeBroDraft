@@ -6,7 +6,9 @@ import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ListView;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -20,49 +22,47 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class User_Profile extends AppCompatActivity
-{
+public class Messages extends AppCompatActivity {
 
+    //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    // Database stuff:
     private FirebaseDatabase database;
     private DatabaseReference myRef;
+    private DatabaseReference myTime;
     private DatabaseReference myRefUsers;
-    private RecyclerView recyclerview;
-    private  String UID;
+    private DatabaseReference myRefAvailability;
 
+    private RecyclerView recyclerview;
+    private String conversationID;
 
     private ListView listview;
     private ArrayList<String> entries;
+    private ArrayList<String> AllConversations;
+    private ArrayList<String> AllNames;
 
+    private EditText medittext;
 
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener authStateListener;
-
-    private static final String TAG = "MyActivity";
-
     //
     //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
     @Override
-    protected void onCreate(Bundle savedInstanceState)
-    {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_user__profile);
+        setContentView(R.layout.activity_messages);
+        listview = (ListView) findViewById(R.id.newListView);
+
         mAuth = FirebaseAuth.getInstance();
-        
-
-
-            UID = mAuth.getCurrentUser().getUid();
-
-
-
-
-        myRef = FirebaseDatabase.getInstance().getReference("Users");
-        myRefUsers = myRef.child(UID);
-        listview = findViewById(R.id.newListView);
-
-
-        myRefUsers.addValueEventListener(new ValueEventListener() {
+        conversationID = " ";
+        Bundle extras = getIntent().getExtras();
+        if (extras != null)
+        {
+            conversationID = extras.getString("conversation");
+        }
+        myRef = FirebaseDatabase.getInstance().getReference("Messages").child(conversationID);
+        myRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot)
             {
@@ -71,7 +71,6 @@ public class User_Profile extends AppCompatActivity
                 Iterator<DataSnapshot> iterator = snapshotIterator.iterator();
                 while(iterator.hasNext())
                 {
-
                     try
                     {
                         String value = iterator.next().getValue(String.class);
@@ -79,12 +78,12 @@ public class User_Profile extends AppCompatActivity
                     }
                     catch (DatabaseException e)
                     {
-                        Log.v(TAG, "preferences=" + e);
+                       //error messages
 
                     }
                 }
                 ArrayAdapter<String> arrayAdapter;
-                arrayAdapter = new ArrayAdapter<String>(User_Profile.this, android.R.layout.simple_list_item_1, entries);
+                arrayAdapter = new ArrayAdapter<String>(Messages.this, android.R.layout.simple_list_item_1, entries);
                 listview.setAdapter(arrayAdapter);
             }
 
@@ -94,7 +93,6 @@ public class User_Profile extends AppCompatActivity
             }
         });
 
-
     }
 
 
@@ -102,77 +100,19 @@ public class User_Profile extends AppCompatActivity
     {
 
         mAuth.signOut();
-        startActivity(new Intent(User_Profile.this, Login.class));
+        startActivity(new Intent(Messages.this, Login.class));
 
     }
 
     public void GoToMain(View view)
     {
-        startActivity(new Intent(User_Profile.this, Main_Page2.class));
+        startActivity(new Intent(Messages.this, Main_Page2.class));
 
     }
 
-    public void GotoProfile(View view)
-    {
+    public void addMessage(View view) {
+        medittext = (EditText) findViewById(R.id.newmessage);
 
-
+        myRef.push().setValue(medittext.getText().toString());
     }
-
-
-    static public class User
-    {
-        public String getSecurity() {
-            return Security;
-        }
-
-        public void setSecurity(String Security) {
-            this.Security = Security;
-        }
-
-        public String getAnswer() {
-            return Answer;
-        }
-
-        public void setAnswer(String Answer) {
-            this.Answer = Answer;
-        }
-
-        public String getStyle() {
-            return Style;
-        }
-
-        public void setStyle(String Style) {
-            this.Style = Style;
-        }
-
-        public String getEmail() {
-            return Email;
-        }
-
-        public void setEmail(String email) {
-            Email = email;
-        }
-
-        private String Email;
-        private String Security;
-        private String Answer;
-        private String Style;
-
-        public User() {
-        }
-        public User(String Security, String Answer, String Style, String Email)
-        {
-            this.Answer = Answer;
-            this.Security = Security;
-            this.Style = Style;
-            this.Email = Email;
-        }
-
-
-    }
-
-
-
-
 }
-

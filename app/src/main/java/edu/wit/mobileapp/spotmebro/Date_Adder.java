@@ -8,6 +8,8 @@ import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -42,7 +44,16 @@ public class Date_Adder extends AppCompatActivity {
     private DatabaseReference myxx = database.getReference("");
     private DatabaseReference mavailability = database.getReference("");
 
+    private DatabaseReference myRefAvailability;
 
+
+    private String temp;
+
+    private ListView listview;
+    private ArrayList<String> entries;
+    private ArrayList<String> AllTimes;
+
+    private String UID;
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener authStateListener;
     //
@@ -69,6 +80,133 @@ public class Date_Adder extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_date__adder);
+
+
+        AllTimes = new ArrayList<>();
+
+
+        mAuth = FirebaseAuth.getInstance();
+
+
+        mAuth = FirebaseAuth.getInstance();
+        UID = mAuth.getCurrentUser().getUid();
+        listview = findViewById(R.id.newListView);
+
+        myRefAvailability = FirebaseDatabase.getInstance().getReference("Users").child(UID).child("Availability");
+        myRefAvailability.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot)
+            {
+                AllTimes.clear();
+                try
+                {
+                    temp = dataSnapshot.getValue().toString();
+                }
+                catch (NullPointerException i)
+                {
+                    temp = ", ";
+                }
+                String [] available = temp.split(",");
+                for (int i = 1; i < available.length; i++)
+                {
+                    AllTimes.add(available[i]);
+                }
+                ArrayAdapter<String> adapter = new ArrayAdapter(Date_Adder.this, android.R.layout.simple_list_item_1, AllTimes);
+
+                listview.setAdapter(adapter);
+
+
+                listview.setOnItemClickListener(new AdapterView.OnItemClickListener()
+                {
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        if (temp != ", ") {
+
+
+                            String timeset = (listview.getItemAtPosition(position)).toString();
+                            String[] available = timeset.split(",");
+
+
+                            String[] parts = available[0].split(" ");
+                            String Day = parts[0];
+                            String Time = parts[1];
+                            String AMPM = parts[2];
+
+                            String finaltime = "0";
+                            String time = Time;
+
+                            if (AMPM.equalsIgnoreCase("AM")) {
+                                if (time == "12") {
+                                    Time = "0";
+                                }
+                                finaltime=Time;
+
+                            } else if (AMPM.equalsIgnoreCase("PM")) {
+                                switch (time) {
+                                    case "1":
+                                        finaltime = "13";
+                                        break;
+                                    case "2":
+                                        finaltime = "14";
+                                        break;
+                                    case "3":
+                                        finaltime = "15";
+                                        break;
+                                    case "4":
+                                        finaltime = "16";
+                                        break;
+                                    case "5":
+                                        finaltime = "17";
+                                        break;
+                                    case "6":
+                                        finaltime = "18";
+                                        break;
+                                    case "7":
+                                        finaltime = "19";
+                                        break;
+                                    case "8":
+                                        finaltime = "20";
+                                        break;
+                                    case "9":
+                                        finaltime = "21";
+                                        break;
+                                    case "10":
+                                        finaltime = "22";
+                                        break;
+                                    case "11":
+                                        finaltime = "23";
+                                        break;
+                                    case "12":
+                                        finaltime = "12";
+                                        break;
+
+                                }
+                                Time = finaltime;
+                            }
+                            Time = finaltime;
+
+
+                            myRef = FirebaseDatabase.getInstance().getReference("").child(Day).child(Time).child(UID);
+                            myRef.removeValue();
+
+                            temp = temp.replace(("," + timeset), "");
+                            myRef = FirebaseDatabase.getInstance().getReference("Users").child(UID).child("Availability");
+                            myRef.setValue(temp);
+
+
+                        }
+
+                    }
+                });
+
+
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 
 
@@ -104,14 +242,14 @@ public class Date_Adder extends AppCompatActivity {
     }
 
     public void GoToMain(View view) {
-        startActivity(new Intent(Date_Adder.this, Main_Page.class));
+        startActivity(new Intent(Date_Adder.this, Main_Page2.class));
     }
 
 
     public void Enter_in_Datetime(View view) {
-        mTime_input = (Spinner) findViewById(R.id.Time_input);
-        mDate_input = (Spinner) findViewById(R.id.Day_input);
-        mAMPM_input = (Spinner) findViewById(R.id.AMPM_input);
+        mTime_input = findViewById(R.id.Time_input);
+        mDate_input = findViewById(R.id.Day_input);
+        mAMPM_input = findViewById(R.id.AMPM_input);
 
         String Time = mTime_input.getSelectedItem().toString();
         final String Day = mDate_input.getSelectedItem().toString();
@@ -120,14 +258,16 @@ public class Date_Adder extends AppCompatActivity {
         String finaltime = "0";
         String time = Time;
 
-        if (AMPM == "AM") {
+        if (AMPM.equalsIgnoreCase("AM"))
+        {
             if (time == "12")
             {
-                Time = "0";
+                finaltime = "0";
             }
+            finaltime = Time;
 
         }
-        else if (AMPM == "PM")
+        else if (AMPM.equalsIgnoreCase("PM"))
         {
             switch (time)
             {
@@ -171,20 +311,25 @@ public class Date_Adder extends AppCompatActivity {
             }
             Time = finaltime;
         }
-
+        else
+        {
+            finaltime = Time;
+        }
+        Time = finaltime;
+        final String FinalTime = Time;
 
         mAuth = FirebaseAuth.getInstance();
         String user = mAuth.getCurrentUser().getUid();
         final String email = mAuth.getCurrentUser().getEmail().toLowerCase();
 
 
-        myRef = database.getReference(Day).child(Time);
+        myRef = database.getReference(Day).child(FinalTime);
         mavailability = myRef.child(user);
         myxx = database.getReference("Users").child(user);
         myUser = myxx.child("Availability");
         // just want the value at availability
 
-        final String finalTime = Time;
+
         myUser.addValueEventListener(new ValueEventListener()
         {
             @Override
@@ -202,7 +347,7 @@ public class Date_Adder extends AppCompatActivity {
 
                 }
 
-                if (availabilities.contains("," + Day + " " + finalTime + " " + AMPM + " "))
+                if (availabilities.contains("," + Day + " " + FinalTime + " " + AMPM + " "))
                 {
                     Toast.makeText(Date_Adder.this, "Already an added availability", Toast.LENGTH_LONG).show();
                 }
@@ -211,7 +356,7 @@ public class Date_Adder extends AppCompatActivity {
                     mavailability.child("Email").setValue(email);
                     mavailability.child("Gender").setValue(MyApplication.Global_Gender);
                     mavailability.child("Style").setValue(MyApplication.Global_Style);
-                    availabilities = availabilities + "," + Day + " " + finalTime + " " + AMPM + " ";
+                    availabilities = availabilities + "," + Day + " " + FinalTime + " " + AMPM + " ";
                     myUser.setValue(availabilities);
                 }
             }
@@ -226,4 +371,9 @@ public class Date_Adder extends AppCompatActivity {
 
 
     }
-}
+
+
+
+    }
+
+
