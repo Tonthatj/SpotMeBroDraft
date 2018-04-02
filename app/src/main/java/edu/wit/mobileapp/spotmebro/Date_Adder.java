@@ -111,47 +111,49 @@ public class Date_Adder extends AppCompatActivity {
                 {
                     try {
                         String[] parts = available[i].split(" ");
-                        String Time = parts[2];
-                        switch (Time) {
+                        String Time = parts[1];
+                        switch (Time)
+                        {
                             case "13":
-                                parts[2] = "1";
+                                parts[1] = "1";
                                 break;
                             case "14":
-                                parts[2] = "2";
+                                parts[1] = "2";
                                 break;
                             case "15":
-                                parts[2] = "3";
+                                parts[1] = "3";
                                 break;
                             case "16":
-                                parts[2] = "4";
+                                parts[1] = "4";
                                 break;
                             case "17":
-                                parts[2] = "5";
+                                parts[1] = "5";
                                 break;
                             case "18":
-                                parts[2] = "6";
+                                parts[1] = "6";
                                 break;
                             case "19":
-                                parts[2] = "7";
+                                parts[1] = "7";
                                 break;
                             case "20":
-                                parts[2] = "8";
+                                parts[1] = "8";
                                 break;
                             case "21":
-                                parts[2] = "9";
+                                parts[1] = "9";
                                 break;
                             case "22":
-                                parts[2] = "10";
+                                parts[1] = "10";
                                 break;
                             case "23":
-                                parts[2] = "11";
+                                parts[1] = "11";
                                 break;
                             case "12":
-                                parts[2] = "12";
+                                parts[1] = "12";
                                 break;
 
                         }
-                        available[i] = parts[1] + " " + parts[2] + " " + parts[3];
+                        available[i] = parts[0]+ " "+parts[1]+ " "+parts[2];
+
                         AllTimes.add(available[i]);
                     }
                     catch(ArrayIndexOutOfBoundsException e)
