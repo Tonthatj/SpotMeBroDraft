@@ -74,7 +74,7 @@
             android:layout_weight="50"
             android:dropDownSelector="#aadaff"
             android:ems="10"
-            android:entries="@array/gender_array"
+            android:entries="@array/my_gender_array"
             android:prompt="@string/Pref_gender_prompt" />
 
     </LinearLayout>
