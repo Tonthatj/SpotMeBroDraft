@@ -1,5 +1,5 @@
 SpotMeBro By Jonathan Tonthat, Yan Wen Huang, Kyle Kable, and Alexan Topalian
 
-Link for hosted SpotMeBro web application:
+Link for hosted SpotMeBro Mobile application:
 
-spotmebro-82458.firebaseapp.com
+https://play.google.com/store/apps/details?id=edu.wit.mobileapp.spotmebro
